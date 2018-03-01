@@ -6,7 +6,8 @@
             [lauzer-wars-2.render :as render]
             [lauzer-wars-2.system.movement :as movement]
             [lauzer-wars-2.system.action :as action]
-            [lauzer-wars-2.dev-panels :as dev]))
+            [lauzer-wars-2.dev-panels :as dev]
+            [lauzer-wars-2.audio :as audio]))
 
 (enable-console-print!)
 
@@ -47,7 +48,7 @@
 
 (defn do-side-effects! [events]
   (when (contains? events ::action/shot)
-    (js/console.log "shot")))
+    (audio/play-pew!)))
 
 (def main-screen
   (reify p/Screen

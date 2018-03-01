@@ -10,7 +10,8 @@
                  [org.clojure/clojurescript "1.9.946"]
                  [reagent "0.7.0"]
                  [re-frame "0.10.5"]
-                 [play-cljs "1.1.0"]]
+                 [play-cljs "1.1.0"]
+                 [cljsjs/howler "2.0.5-0"]]
 
   :plugins [[lein-figwheel "0.5.14"]
             [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]]
