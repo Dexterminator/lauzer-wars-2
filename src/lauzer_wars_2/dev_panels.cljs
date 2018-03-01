@@ -32,27 +32,27 @@
 (defonce current-interval-ms (r/atom default-monitor-interval-ms))
 
 (defn set-monitor-interval
-  ([state]
-   (set-monitor-interval state default-monitor-interval-ms))
-  ([state ms]
+  ([state events]
+   (set-monitor-interval state events default-monitor-interval-ms))
+  ([state events ms]
    (js/clearInterval @current-interval-id)
-   (let [new-interval-id (js/setInterval #(rf/dispatch-sync [:game-state-update @state]) ms)]
+   (let [new-interval-id (js/setInterval #(rf/dispatch-sync [:game-state-update (assoc @state :events @events)]) ms)]
      (reset! current-interval-id new-interval-id))))
 
-(defn set-monitor-interval-panel [state]
+(defn set-monitor-interval-panel [state events]
   [:div.set-interval-panel
    [:span
     "Monitor game state every "
     [:input {:value     (or @current-interval-ms default-monitor-interval-ms)
              :on-change #(reset! current-interval-ms (-> % .-target .-value))
-             :on-blur   #(set-monitor-interval state @current-interval-ms)}]
+             :on-blur   #(set-monitor-interval state events @current-interval-ms)}]
     " ms"]])
 
 (defn dev-panel []
   (let [saved-state-ts (r/atom nil)]
-    (fn [state initial-state]
+    (fn [state events initial-state]
       [:div.main-panel
-       [set-monitor-interval-panel state]
+       [set-monitor-interval-panel state events]
        [:div.state-buttons
         [save-state-button state saved-state-ts]
         [restore-state-button state]
