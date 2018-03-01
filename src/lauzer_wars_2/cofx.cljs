@@ -7,7 +7,8 @@
    keycodes/A :left
    keycodes/S :down
    keycodes/D :right
-   keycodes/F :shoot})
+   keycodes/F :shoot
+   keycodes/J :shoot})
 
 (defn get-input! [game]
   (->> game
@@ -17,6 +18,6 @@
        set))
 
 (defn get-cofx! [game]
-  {:dt    (p/get-delta-time game)
+  {:dt    (* 0.001 (p/get-delta-time game))
    :input (get-input! game)
    :now   (.getTime (js/Date.))})

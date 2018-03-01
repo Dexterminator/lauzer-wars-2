@@ -14,37 +14,6 @@
 (defonce game-state (r/atom constants/initial-state))
 (defonce latest-events (r/atom {}))
 
-(defn scroll [text-x dt]
-  (if (> text-x 500)
-    -50
-    (+ text-x (* 100 dt))))
-
-(defn scroll-system [state events {:keys [dt]}]
-  {:state  (update state :text-x scroll (* dt 0.001))
-   :events (assoc events :scrolled true)})
-
-(defn add-visible-input-system [state events {:keys [input]}]
-  {:state  (assoc state :pressed-keys input)
-   :events (assoc events :scolled true)})
-
-(def systems
-  [scroll-system add-visible-input-system action/apply-system movement/apply-system])
-
-(defn apply-systems
-  "Applies every game system to the game state in order.
-  Each system has the signature [state events cofx], where state is the current game state, events is a map
-  of \"atomic\" events that have occurred in the current frame, i.e :player/died.
-  Each system returns a map with the keys :state and :events, containing the updated state and events."
-  [cofx state]
-  (reduce (fn [{:keys [state events]} system]
-            (system state events cofx))
-          {:state state :events {}}
-          systems))
-
-(defn do-side-effects! [events]
-  (when (contains? events ::action/shot)
-    (js/console.log "shot")))
-
 (defn merge-latest-events [events new-events]
   (let [date (js/Date.)
         time (.toLocaleTimeString (js/Date.) "sv-SWE")
@@ -55,6 +24,30 @@
                                :params v}))
             events
             new-events)))
+
+(def systems
+  [action/apply-system movement/apply-system])
+
+(defn apply-systems
+  "Applies every game system to the game state in order.
+  Each system has the signature [state events cofx], where state is the current game state, events is a map
+  of \"atomic\" events that have occurred in the current frame, i.e :player/died.
+  Each system returns a map with the keys :state and :events, containing the updated state and events."
+  [cofx state]
+  (reduce (fn [{:keys [state events]} system]
+            (let [applied (system state events cofx)]
+              {:state  (if (contains? applied :state)
+                         (:state applied)
+                         state)
+               :events (if (contains? applied :events)
+                         (:events applied)
+                         events)}))
+          {:state state :events {}}
+          systems))
+
+(defn do-side-effects! [events]
+  (when (contains? events ::action/shot)
+    (js/console.log "shot")))
 
 (def main-screen
   (reify p/Screen
