@@ -1,8 +1,24 @@
 (ns lauzer-wars-2.dev-panels
   (:require [reagent.core :as r]
-            [re-frame.core :as rf]))
+            [re-frame.core :as rf]
+            [lauzer-wars-2.constants :as constants]))
 
 (def debug? ^boolean js/goog.DEBUG)
+(defonce ^:private latest-events (atom {}))
+
+(defn merge-latest-events [events new-events]
+  (let [date (js/Date.)
+        time (.toLocaleTimeString (js/Date.) "sv-SWE")
+        millis (.getMilliseconds date)
+        ts (str time ":" millis)]
+    (reduce (fn [events [k v]]
+              (assoc events k {:ts     ts
+                               :params v}))
+            events
+            new-events)))
+
+(defn update-latest-events! [events]
+  (swap! latest-events merge-latest-events events))
 
 (when debug?
   (rf/reg-event-db
@@ -32,11 +48,11 @@
 (defonce current-interval-ms (r/atom default-monitor-interval-ms))
 
 (defn set-monitor-interval
-  ([state events]
-   (set-monitor-interval state events default-monitor-interval-ms))
-  ([state events ms]
+  ([state]
+   (set-monitor-interval state default-monitor-interval-ms))
+  ([state ms]
    (js/clearInterval @current-interval-id)
-   (let [new-interval-id (js/setInterval #(rf/dispatch-sync [:game-state-update (assoc @state :events @events)]) ms)]
+   (let [new-interval-id (js/setInterval #(rf/dispatch-sync [:game-state-update (assoc @state :events @latest-events)]) ms)]
      (reset! current-interval-id new-interval-id))))
 
 (defn set-monitor-interval-panel [state events]
@@ -45,7 +61,7 @@
     "Monitor game state every "
     [:input {:value     (or @current-interval-ms default-monitor-interval-ms)
              :on-change #(reset! current-interval-ms (-> % .-target .-value))
-             :on-blur   #(set-monitor-interval state events @current-interval-ms)}]
+             :on-blur   #(set-monitor-interval state @current-interval-ms)}]
     " ms"]])
 
 (defn dev-panel []
@@ -58,3 +74,7 @@
         [restore-state-button state]
         [initial-state-button state initial-state]
         [saved-state-ts-panel @saved-state-ts]]])))
+
+(defn render-dev-panel [game-state]
+  (r/render [dev-panel game-state latest-events constants/initial-state]
+            (.getElementById js/document "app")))

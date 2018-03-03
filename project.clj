@@ -35,7 +35,8 @@
                 :compiler     {:main            lauzer-wars-2.core
                                :output-to       "resources/public/js/compiled/lauzer_wars_2.js"
                                :closure-defines {goog.DEBUG false}
-                               :optimizations   :simple
+                               :optimizations   :advanced
+                               :infer-externs   true
                                :pretty-print    false}}]}
 
   :figwheel {:server-port 3556
