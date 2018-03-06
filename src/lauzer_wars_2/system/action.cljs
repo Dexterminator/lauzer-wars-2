@@ -16,10 +16,11 @@
     events))
 
 (defn move-player [player input dt]
-  (reduce (fn [player [key action]]
-            (cond-> player (contains? input key) action))
-          player
-          (direction->movement dt)))
+  (let [player (assoc player :old-x (:x player) :old-y (:y player))]
+    (reduce (fn [player [key action]]
+              (cond-> player (contains? input key) action))
+            player
+            (direction->movement dt))))
 
 (defn update-player [player shot? now input dt]
   (cond-> (move-player player input dt)

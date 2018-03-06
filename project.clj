@@ -34,7 +34,8 @@
                                :preloads             [devtools.preload day8.re-frame-10x.preload]}}
                {:id           "test"
                 :source-paths ["src" "test/cljs" "test/cljc"]
-                :compiler     {:output-to     "resources/public/js/compiled/test.js"
+                :compiler     {:output-to     "resources/public/js/compiled/test/test.js"
+                               :output-dir    "resources/public/js/compiled/test"
                                :main          lauzer-wars-2.doo-runner
                                :optimizations :none}}
                {:id           "min"

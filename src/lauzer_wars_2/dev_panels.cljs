@@ -28,8 +28,8 @@
 
 (defonce saved-state (atom {}))
 
-(defn initial-state-button [state initial-state]
-  [:button {:on-click #(reset! state initial-state)} "Initial state"])
+(defn initial-state-button [state game]
+  [:button {:on-click #(reset! state (constants/initial-state game))} "Initial state"])
 
 (defn save-state-button [state saved-state-ts]
   [:button {:on-click (fn []
@@ -66,15 +66,15 @@
 
 (defn dev-panel []
   (let [saved-state-ts (r/atom nil)]
-    (fn [state events initial-state]
+    (fn [state game events]
       [:div.main-panel
        [set-monitor-interval-panel state events]
        [:div.state-buttons
         [save-state-button state saved-state-ts]
         [restore-state-button state]
-        [initial-state-button state initial-state]
+        [initial-state-button state game]
         [saved-state-ts-panel @saved-state-ts]]])))
 
-(defn render-dev-panel [game-state]
-  (r/render [dev-panel game-state latest-events constants/initial-state]
+(defn render-dev-panel [game-state game]
+  (r/render [dev-panel game-state game latest-events]
             (.getElementById js/document "app")))

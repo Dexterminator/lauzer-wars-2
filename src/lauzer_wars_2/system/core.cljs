@@ -1,9 +1,10 @@
 (ns lauzer-wars-2.system.core
   (:require [lauzer-wars-2.system.movement :as movement]
-            [lauzer-wars-2.system.action :as action]))
+            [lauzer-wars-2.system.action :as action]
+            [lauzer-wars-2.system.collision :as collision]))
 
 (def systems
-  [action/apply-system movement/apply-system])
+  [action/apply-system movement/apply-system collision/apply-system])
 
 (defn apply-systems
   "Applies every game system to the game state in order.

@@ -1,6 +1,5 @@
 (ns lauzer-wars-2.core
   (:require [play-cljs.core :as p]
-            [reagent.core :as r]
             [lauzer-wars-2.cofx :as cofx]
             [lauzer-wars-2.constants :as constants]
             [lauzer-wars-2.render :as render]
@@ -10,8 +9,8 @@
 
 (enable-console-print!)
 
-(defonce game (p/create-game 500 300))
-(defonce ^:private game-state (atom constants/initial-state))
+(defonce game (p/create-game constants/width constants/height))
+(defonce ^:private game-state (atom {}))
 
 (defn process-frame! []
   (let [cofx (cofx/get-cofx! game)
@@ -23,18 +22,19 @@
 
 (def main-screen
   (reify p/Screen
-    (on-show [this])
+    (on-show [this]
+      (reset! game-state (constants/initial-state game)))
     (on-hide [this])
 
     (on-render [this]
       (process-frame!))))
 
-(doto game
-  (p/start)
-  (p/set-screen main-screen))
+(defonce started (doto game
+                   (p/start)
+                   (p/set-screen main-screen)))
 
 (when dev/debug?
-  (dev/render-dev-panel game-state))
+  (dev/render-dev-panel game-state game))
 
 (defn on-js-reload [])
 
