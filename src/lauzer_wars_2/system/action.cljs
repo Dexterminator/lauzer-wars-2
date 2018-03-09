@@ -11,26 +11,30 @@
      :right #(update % :x + movement)}))
 
 (defn update-events [events shot?]
-  (if shot?
-    (assoc events ::shot [])
-    events))
+  (when shot?
+    {::shot []}))
 
-(defn move-player [player input dt]
-  (let [player (assoc player :old-x (:x player) :old-y (:y player))]
+(defn update-position [position input dt]
+  (let [position (assoc position :old-x (:x position) :old-y (:y position))]
     (reduce (fn [player [key action]]
               (cond-> player (contains? input key) action))
-            player
+            position
             (direction->movement dt))))
 
 (defn update-player [player shot? now input dt]
-  (cond-> (move-player player input dt)
-          shot? (assoc :last-shot-ts now)))
+  (cond-> (update player :component/position update-position input dt)
+          shot? (assoc-in [:component/weapon :last-shot-ts] now)))
 
-(defn apply-system [{:keys [player] :as state}
+(defn apply-system [entities
                     events
                     {:keys [input now dt]}]
-  (let [shot-input? (contains? input :shoot)
-        can-shoot? (> (- now (:last-shot-ts player)) shoot-cooldown)
+  (let [player (first entities)
+        shot-input? (contains? input :shoot)
+        can-shoot? (> (- now (get-in player [:component/weapon :last-shot-ts])) shoot-cooldown)
         shot? (and shot-input? can-shoot?)]
-    {:state  (update state :player update-player shot? now input dt)
-     :events (update-events events shot?)}))
+    {:entities [(update-player player shot? now input dt)]
+     :events   (update-events events shot?)}))
+
+(def system {:system-fn     apply-system
+             :components    [:component/weapon :component/position]
+             :subscriptions []})

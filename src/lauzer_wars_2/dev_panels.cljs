@@ -1,7 +1,7 @@
 (ns lauzer-wars-2.dev-panels
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
-            [lauzer-wars-2.constants :as constants]))
+            [lauzer-wars-2.initial-state :as initial-state]))
 
 (def debug? ^boolean js/goog.DEBUG)
 (defonce ^:private latest-events (atom {}))
@@ -29,7 +29,7 @@
 (defonce saved-state (atom {}))
 
 (defn initial-state-button [state game]
-  [:button {:on-click #(reset! state (constants/initial-state game))} "Initial state"])
+  [:button {:on-click #(reset! state (initial-state/initial-state game))} "Initial state"])
 
 (defn save-state-button [state saved-state-ts]
   [:button {:on-click (fn []

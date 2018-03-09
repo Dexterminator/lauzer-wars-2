@@ -4,12 +4,11 @@
 
 (defn render-player [player]
   [:image (merge {:name "images/player1.png"}
-                 (select-keys player [:x :y :width :height]))])
+                 (:component/position player)
+                 (:component/dimensions player))])
 
 (defn render-frame! [state game]
   (p/render
     game
     [[:tiled-map {:name constants/map-name :x 0}]
-     [:fill {:color "red"}
-      [:ellipse (merge {:width 5 :height 4} (select-keys (:player state) [:x :y]))]]
-     (render-player (:player state))]))
+     (render-player (get-in state [:id->entity "player"]))]))

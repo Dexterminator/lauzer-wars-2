@@ -2,6 +2,7 @@
   (:require [play-cljs.core :as p]
             [lauzer-wars-2.cofx :as cofx]
             [lauzer-wars-2.constants :as constants]
+            [lauzer-wars-2.initial-state :as initial-state]
             [lauzer-wars-2.render :as render]
             [lauzer-wars-2.dev-panels :as dev]
             [lauzer-wars-2.system.core :as system]
@@ -14,16 +15,17 @@
 
 (defn process-frame! []
   (let [cofx (cofx/get-cofx! game)
-        {:keys [state events]} (system/apply-systems cofx @game-state)]
+        {:keys [id->entity events]} (system/apply-systems cofx (:id->entity @game-state))
+        updated-state (assoc @game-state :id->entity id->entity)]
     (side-effects/do-side-effects! events)
-    (render/render-frame! state game)
-    (reset! game-state state)
+    (render/render-frame! updated-state game)
+    (reset! game-state updated-state)
     (when dev/debug? (dev/update-latest-events! events))))
 
 (def main-screen
   (reify p/Screen
     (on-show [this]
-      (reset! game-state (constants/initial-state game)))
+      (reset! game-state (initial-state/initial-state game)))
     (on-hide [this])
 
     (on-render [this]
