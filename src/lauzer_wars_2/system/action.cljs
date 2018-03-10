@@ -1,7 +1,7 @@
 (ns lauzer-wars-2.system.action)
 
 (def shoot-cooldown 1000)
-(def speed 200)
+(def speed 140)
 
 (defn direction->movement [dt]
   (let [movement (* speed dt)]
@@ -9,10 +9,6 @@
      :down  #(update % :y + movement)
      :left  #(update % :x - movement)
      :right #(update % :x + movement)}))
-
-(defn update-events [events shot?]
-  (when shot?
-    {::shot []}))
 
 (defn update-position [position input dt]
   (let [position (assoc position :old-x (:x position) :old-y (:y position))]
@@ -33,7 +29,7 @@
         can-shoot? (> (- now (get-in player [:component/weapon :last-shot-ts])) shoot-cooldown)
         shot? (and shot-input? can-shoot?)]
     {:entities [(update-player player shot? now input dt)]
-     :events   (update-events events shot?)}))
+     :events   (when shot? {::shot []})}))
 
 (def system {:system-fn     apply-system
              :components    [:component/weapon :component/position]
