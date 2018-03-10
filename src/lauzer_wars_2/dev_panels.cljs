@@ -66,8 +66,9 @@
 
 (defn dev-panel []
   (let [saved-state-ts (r/atom nil)]
-    (fn [state game events]
+    (fn [state game events fps]
       [:div.main-panel
+       [:div (str "FPS: " @fps)]
        [set-monitor-interval-panel state events]
        [:div.state-buttons
         [save-state-button state saved-state-ts]
@@ -75,6 +76,6 @@
         [initial-state-button state game]
         [saved-state-ts-panel @saved-state-ts]]])))
 
-(defn render-dev-panel [game-state game]
-  (r/render [dev-panel game-state game latest-events]
+(defn render-dev-panel [game-state game fps]
+  (r/render [dev-panel game-state game latest-events fps]
             (.getElementById js/document "app")))
